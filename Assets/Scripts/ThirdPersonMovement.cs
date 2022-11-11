@@ -14,12 +14,12 @@ public class ThirdPersonMovement : MonoBehaviour
     public Transform cam;
 
     public float Speed;
-    public float SpeedWalk = 0.4f;
-    public float SpeedSprint = 2f;
+    public float SpeedWalk;
+    public float SpeedSprint;
     bool isSprinting = false;
-    public float SprintAcceleration = 1.5f;
+    public float SprintAcceleration;
     public float AccelerationVelocity;
-    public float JumpHeight = 2f;
+    public float JumpHeight;
 
    
     public float TurnRadius;
@@ -33,26 +33,42 @@ public class ThirdPersonMovement : MonoBehaviour
     Vector3 Velocity;
     
     public Transform GroundCheck;
-    public float GroundDistance = 2f;
+    public float GroundDistance;
     public LayerMask GroundMask;
     bool isGrounded;
 
-    public float DistanceToGround = 2f;
+    public float DistanceToGround;
     bool isNearGround;
     bool isFlying = false;
-    public float brake = 0.3f;
-    public float lift = -20f;
+    public float brake;
+    public float lift;
+
+
 
 
     // Start is called before the first frame update
     void Start()
     {
-    //Turn Radius Stats
+        Speed = 5f;
+        SpeedWalk = 5f;
+        SpeedSprint = 7f;
+        SprintAcceleration = 1.5f;
+        JumpHeight = 2f;
+        brake = 0.3f;
+
+        //Turn Radius Stats
         TurnRadius = 0.2f;
         TurnRadiusWalk = 1f;
         TurnRadiusSprint = 1.2f;
         TurnRadiusGlide = 1f;
         TurnRadiusFlight = 1.3f;
+
+        GroundDistance = 2f;
+        DistanceToGround = 2f;
+
+        Gravity = -9.81f;
+        lift = -20f;
+
     }
 
     // Update is called once per frame

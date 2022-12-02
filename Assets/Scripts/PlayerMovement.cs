@@ -1,59 +1,111 @@
-using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    Rigidbody BluigiRB;
-    [SerializeField] float VerticalWalkSpeed = 5f;
-    [SerializeField] float HorizontalWalkSpeed = 5f;
-    [SerializeField] float TurnSpeed = 10f;
-    [SerializeField] float JumpHeight = 5f;
+    public float Speed, SpeedWalk, WalkAcceleration, SpeedSprint, SpeedGlide, GlideAcceleration, SpeedFlight, SpeedDiving;
+    public float SprintAcceleration, SprintDeceleration, AccelerationVelocity;
+    public float TurnRadius, turnSmoothVelocity, TurnSpeed, TurnWalk, TurnWalkAcceleration, TurnGlide, TurnGlideAcceleration;
+    public float Pitch, PitchSpeed, PitchAcceleration;
+    bool isWalking, isSprinting, isSpeedingUp = false;
+    public float JumpHeight, JumpAcceleration;
+    public float Gravity;
+    Vector3 Velocity;
 
-    [SerializeField] Transform GroundCheck;
-    [SerializeField] LayerMask Ground;
+    public Transform GroundCheck;
+    public float GroundDistance;
+    public LayerMask GroundMask;
+    public bool isGrounded;
 
+    public float DistanceToGround;
+    public bool isNearGround;
+    public bool isFlying = false;
+    public float brake;
+
+    public Transform cam;
+    public Rigidbody rb;
+    public Animator animator;
     // Start is called before the first frame update
     void Start()
     {
-        BluigiRB = GetComponent<Rigidbody>();
+        //Turning Stats
+        TurnRadius = 2f;
+        TurnWalk = 3f;
+        TurnWalkAcceleration = 10f;
+        TurnGlide = 2f;
+        TurnGlideAcceleration = 2f;
+
+        //Speed Stats
+        SpeedWalk = 4f;
+        WalkAcceleration = 14f;
+        SpeedGlide = 20f;
+        GlideAcceleration = 2.5f;
+        SpeedSprint = 5f;
+        SpeedFlight = 4f;
+        SpeedDiving = 1.01f;
         
+        SprintAcceleration = 1.5f;
+        SprintDeceleration = 1.5f;
+        JumpAcceleration = 10f;
+        JumpHeight = 5f;
+
+        //Pitch Stats
+        Pitch = 1f;
+
+        //Grounded Stats
+        GroundDistance = 0.2f;
+        DistanceToGround = 1f;
+        brake = 0.3f;
+        
+
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        float verticalInput = Input.GetAxis("Vertical");
-
-       
-        //multíply the walking speed by the input for each axis. This allows Inputs other than 1 and 0 and makes everything smoother.
-        BluigiRB.velocity = new Vector3( horizontalInput * HorizontalWalkSpeed , BluigiRB.velocity.y, verticalInput * VerticalWalkSpeed);
-  
-        //if a button for vertical movement is pressed
-        if (Input.GetButtonDown("Vertical"))
-        //change the player's velocity on the x-axis to their vertical walking speed
-        { BluigiRB.velocity = new Vector3(VerticalWalkSpeed, BluigiRB.velocity.y, BluigiRB.velocity.z); }
-
-    
-        //if a button for horizantal movement is pressed
-        if (Input.GetButtonDown("Horizontal"))
-        //change the player's velocity on the z-axis to their horizontal walking speed
-        { BluigiRB.velocity = new Vector3(BluigiRB.velocity.x, BluigiRB.velocity.y, HorizontalWalkSpeed); }
-      
-
-        //if a button for jumping is pressed and the player is touching the ground
-        if (Input.GetButtonDown("Jump") && IsGrounded())
-        //change the player's velocity on the y-axis to their jump height
-        { BluigiRB.velocity = new Vector3(BluigiRB.velocity.x, JumpHeight, BluigiRB.velocity.z); }
+        //GroundCheck
+        isGrounded = Physics.CheckSphere(GroundCheck.position, GroundDistance, GroundMask);
+        isNearGround = Physics.CheckSphere(GroundCheck.position, DistanceToGround, GroundMask);
 
 
-        // checks, if a sphere at the bottom of the player with a radius of 0.1 is intersecting with the "Ground" layer
-        bool IsGrounded()
+        Speed = Mathf.Lerp(Speed, Input.GetAxisRaw("Axis1") * SpeedWalk, WalkAcceleration * Time.deltaTime);
+        TurnSpeed = Mathf.Lerp(TurnSpeed, Input.GetAxisRaw("Axis2") * TurnWalk, TurnWalkAcceleration * Time.deltaTime);
+        transform.position += (transform.forward * Speed * Time.deltaTime);
+
+        //calculate the character's new angle, convert the result to degrees instead of radians, store it,
+        float targetAngle = Mathf.Atan2(TurnSpeed, Speed) * Mathf.Rad2Deg;
+
+        
+
+        //rotate the character said degrees around the y axis,
+        transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
+
+        if (Input.GetKeyDown("space") && isGrounded)
         {
-           return Physics.CheckSphere(GroundCheck.position, .1f, Ground);
-
+            rb.transform.position += (transform.up * JumpHeight * Time.deltaTime);
         }
+        if (Speed > 0.1f || TurnSpeed > 0.1f || Speed < -0.1f || TurnSpeed < 0.1f)
+        {
+            animator.SetBool("isMoving", true);
+            isWalking = true;
+        }
+
+        else
+        {
+            animator.SetBool("isMoving", false);
+            isWalking = false;
+        }
+
+        //if the player is flying
+        if (isFlying)
+        {
+            Speed = SpeedGlide;
+            TurnSpeed = Mathf.Lerp(TurnSpeed, Input.GetAxisRaw("Axis2") * TurnGlide, TurnGlideAcceleration * Time.deltaTime);
+            PitchSpeed = Mathf.Lerp(PitchSpeed, Input.GetAxisRaw("Axis1") * Pitch, PitchAcceleration * Time.deltaTime);
+        }
+
     }
 }

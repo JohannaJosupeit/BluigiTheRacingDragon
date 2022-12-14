@@ -122,7 +122,10 @@ public class ThirdPersonMovement : MonoBehaviour
             {
                 controller.Move(transform.up * Time.deltaTime * PitchRate * vertical);
             }
-          
+
+            //calculate the character's new angle, convert the result to degrees instead of radians, store it,
+            float targetRotationx = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+
             Velocity.y = currentVelocity_y;
             TurnRadius = TurnRadiusGlide;
 
@@ -145,7 +148,7 @@ public class ThirdPersonMovement : MonoBehaviour
             else
 
             {
-                Speed = SpeedGliding * Velocity.y * Time.deltaTime;
+                Speed = SpeedGliding;
                 isSpeedingUp = false;
                 { TurnRadius = TurnRadiusGlide; }
 

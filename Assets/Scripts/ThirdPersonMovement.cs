@@ -19,6 +19,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float SpeedSprint;
     public float SpeedDiving;
     public float SpeedGliding;
+    public float PitchRate;
     bool isSprinting = false;
     bool isSpeedingUp = false;
     bool isFlyingUp = false;
@@ -27,7 +28,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float AccelerationVelocity;
     public float JumpHeight;
     public float keepFlyingSpeed;
-    public float currentVelocity;
+    public float currentVelocity_y;
 
 
     public float TurnRadius;
@@ -52,6 +53,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float lift = -20f;
 
     public Animator animator;
+    public GameObject player;
 
 
     // Start is called before the first frame update
@@ -64,12 +66,14 @@ public class ThirdPersonMovement : MonoBehaviour
         TurnRadiusGlide = 1f;
         TurnRadiusFlight = 1.3f;
 
+        currentVelocity_y = 0f;
         Speed = 3f;
         SpeedWalk = 3f;
         SpeedSprint = 5f;
         SpeedFlight = 4f;
         SpeedDiving = 2f;
         SpeedGliding = 20f;
+        PitchRate = 20f;
         SprintAcceleration = 1.5f;
         SprintDeceleration = 1.5f;
         keepFlyingSpeed = 50f;
@@ -81,6 +85,7 @@ public class ThirdPersonMovement : MonoBehaviour
         brake = 0.3f;
         Gravity = -9.81f;
         animator = GetComponent<Animator>();
+       
     }
 
     // Update is called once per frame
@@ -98,7 +103,6 @@ public class ThirdPersonMovement : MonoBehaviour
         isNearGround = Physics.CheckSphere(GroundCheck.position, DistanceToGround, GroundMask);
 
         
-
         //Reset velocity after touching the ground
         if (isGrounded && Velocity.y < 0)
         { Velocity.y = -2f; }
@@ -114,61 +118,15 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
-
-            //calculate the character's new angle, convert the result to degrees instead of radians, store it,
-           // float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
-
-            //smooth turning
-           // float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, TurnRadius);
-
-            //rotate the character said degrees around the y axis,
-           // transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
-            //store new direction
-           // Vector3 moveDir2 = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-            //Vector3 direction2 = new Vector3(0f, horizontal, vertical).normalized;
-
-            //and move the character in that direction multiplied by the speed and time (to make it frame-rate-independent).
-           // controller.Move(direction2.normalized * Speed * Time.deltaTime);
-
-
-
-            Velocity.y = 0f;
+            if (vertical != 0)
+            {
+                controller.Move(transform.up * Time.deltaTime * PitchRate * vertical);
+            }
+          
+            Velocity.y = currentVelocity_y;
             TurnRadius = TurnRadiusGlide;
 
 
-
-            /*if (Input.GetKey(KeyCode.W))
-            {
-                if(!isFlyingUp)
-                {
-                    Velocity.y = 2f;
-                    isFlyingUp = true;
-                }
-                
-                
-            } */
-
-            if (Input.GetKeyUp(KeyCode.W))
-            {
-                Debug.Log("Bluigi is flying up");
-               // Velocity.y = 0f;
-               // Speed = SpeedGliding;
-                Velocity.y = Speed * 2.5f + 0.01f;
-            }
-            
-
-            if (Input.GetKey(KeyCode.S))
-            {
-                Debug.Log("Diving");
-                if (Speed <= 20)
-                {
-                    Speed *= SpeedDiving;
-                }
-                Velocity.y = -Speed * 0.5f + 0.01f;
-
-            }
-            
             //if shift is pressed
             if (Input.GetKey(KeyCode.LeftShift))
 
@@ -187,7 +145,7 @@ public class ThirdPersonMovement : MonoBehaviour
             else
 
             {
-                Speed = SpeedGliding;
+                Speed = SpeedGliding * Velocity.y * Time.deltaTime;
                 isSpeedingUp = false;
                 { TurnRadius = TurnRadiusGlide; }
 

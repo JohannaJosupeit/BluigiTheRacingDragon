@@ -68,8 +68,8 @@ public class ThirdPersonMovement : MonoBehaviour
         SpeedWalk = 3f;
         SpeedSprint = 5f;
         SpeedFlight = 4f;
-        SpeedDiving = 1.01f;
-        SpeedGliding = 4f;
+        SpeedDiving = 2f;
+        SpeedGliding = 20f;
         SprintAcceleration = 1.5f;
         SprintDeceleration = 1.5f;
         keepFlyingSpeed = 50f;
@@ -116,20 +116,20 @@ public class ThirdPersonMovement : MonoBehaviour
         {
 
             //calculate the character's new angle, convert the result to degrees instead of radians, store it,
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+           // float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
 
             //smooth turning
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, TurnRadius);
+           // float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, TurnRadius);
 
             //rotate the character said degrees around the y axis,
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+           // transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
             //store new direction
-            Vector3 moveDir2 = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
-            Vector3 direction2 = new Vector3(0f, horizontal, vertical).normalized;
+           // Vector3 moveDir2 = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+            //Vector3 direction2 = new Vector3(0f, horizontal, vertical).normalized;
 
             //and move the character in that direction multiplied by the speed and time (to make it frame-rate-independent).
-            controller.Move(direction2.normalized * Speed * Time.deltaTime);
+           // controller.Move(direction2.normalized * Speed * Time.deltaTime);
 
 
 
@@ -147,15 +147,16 @@ public class ThirdPersonMovement : MonoBehaviour
                 }
                 
                 
-            }
+            } */
 
             if (Input.GetKeyUp(KeyCode.W))
             {
                 Debug.Log("Bluigi is flying up");
-                Velocity.y = 0f;
-                Speed = SpeedGliding;
+               // Velocity.y = 0f;
+               // Speed = SpeedGliding;
+                Velocity.y = Speed * 2.5f + 0.01f;
             }
-            */
+            
 
             if (Input.GetKey(KeyCode.S))
             {

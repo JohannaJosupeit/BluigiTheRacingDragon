@@ -70,7 +70,7 @@ public class ThirdPersonMovement : MonoBehaviour
         Speed = 3f;
         SpeedWalk = 3f;
         SpeedSprint = 5f;
-        SpeedFlight = 4f;
+        SpeedFlight = 13f;
         SpeedDiving = 2f;
         SpeedGliding = 20f;
         PitchRate = 20f;

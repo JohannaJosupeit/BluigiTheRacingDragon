@@ -128,8 +128,11 @@ public class ThirdPersonMovement : MonoBehaviour
             {
                 CurrentPitch = 0f;
             }
-            //calculate the character's new angle, convert the result to degrees instead of radians, store it,
-            float targetRotationx = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            
+            if (direction.z < 0f)
+            {
+                direction.z = 0f;
+            }
 
             Velocity.y = currentVelocity_y;
             TurnRadius = TurnRadiusGlide;

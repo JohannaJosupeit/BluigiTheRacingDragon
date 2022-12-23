@@ -19,7 +19,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float SpeedSprint;
     public float SpeedDiving;
     public float SpeedGliding;
-    public float PitchRate;
+    public float CurrentPitch, PitchRate;
     bool isSprinting = false;
     bool isSpeedingUp = false;
     bool isFlyingUp = false;
@@ -70,10 +70,11 @@ public class ThirdPersonMovement : MonoBehaviour
         Speed = 3f;
         SpeedWalk = 3f;
         SpeedSprint = 5f;
-        SpeedFlight = 13f;
+        SpeedFlight = 33f;
         SpeedDiving = 2f;
         SpeedGliding = 20f;
-        PitchRate = 20f;
+        CurrentPitch = 0f;
+        PitchRate = 15f;
         SprintAcceleration = 1.5f;
         SprintDeceleration = 1.5f;
         keepFlyingSpeed = 50f;
@@ -111,19 +112,22 @@ public class ThirdPersonMovement : MonoBehaviour
         {
             isFlying = true;
             animator.SetBool("isFlying", true);
-
         }
 
-
+      
         //if the player is flying
         if (isFlying)
         {
-           
+           // 
             if (vertical != 0)
             {
-                controller.Move(transform.up * Time.deltaTime * PitchRate * vertical);
+                CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 5f * Time.deltaTime);
+                controller.Move(transform.up * Time.deltaTime * CurrentPitch * vertical);
             }
-
+            else
+            {
+                CurrentPitch = 0f;
+            }
             //calculate the character's new angle, convert the result to degrees instead of radians, store it,
             float targetRotationx = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
 
@@ -133,38 +137,29 @@ public class ThirdPersonMovement : MonoBehaviour
 
             //if shift is pressed
             if (Input.GetKey(KeyCode.LeftShift))
-
-            {  //and if the player is not speeding up already
-                if (!isSpeedingUp)
-                {
-                    // add speed to the current speed
-                    Speed += SpeedFlight;
-                    isSpeedingUp = true;
-
-                    { TurnRadius = TurnRadiusSprint; }
-
-                }
+            {
+                // accelerate to the dragon's max. speed.
+                Speed = Mathf.Lerp(Speed, SpeedFlight, 1f * Time.deltaTime);
             }
 
-            else
-
+            //if shift is not pressed anymore
+            if (Input.GetKeyUp(KeyCode.LeftShift))
             {
-                
+                //reset the boolean and turn radius to gliding
                 isSpeedingUp = false;
                 { TurnRadius = TurnRadiusGlide; }
-
-                
             }
 
-            //and ctrl is pressed
+            //If ctrl is pressed while flying
             if (Input.GetKey(KeyCode.LeftControl))
-            {
+            {   
+                //smoothly transition from the dragon's current speed to 0.
                 Speed = Mathf.Lerp(Speed, 0f, 1f * Time.deltaTime);
                 Velocity.y = 0f;
             }
 
 
-            if (Speed < 0.3f)
+            if (Speed < 0.1f)
             {
                 animator.SetBool("Speedis0", true);
             }

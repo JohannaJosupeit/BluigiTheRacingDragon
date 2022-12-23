@@ -118,13 +118,7 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
-            //and ctrl is pressed
-            if (Input.GetKey(KeyCode.LeftControl))
-            {
-                Speed = Mathf.Lerp(Speed, 0f, 1f * Time.deltaTime);
-                Velocity.y = 0f;
-            }
-
+           
             if (vertical != 0)
             {
                 controller.Move(transform.up * Time.deltaTime * PitchRate * vertical);
@@ -155,14 +149,20 @@ public class ThirdPersonMovement : MonoBehaviour
             else
 
             {
-                Speed = SpeedGliding;
+                
                 isSpeedingUp = false;
                 { TurnRadius = TurnRadiusGlide; }
 
                 
             }
 
-           
+            //and ctrl is pressed
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                Speed = Mathf.Lerp(Speed, 0f, 1f * Time.deltaTime);
+                Velocity.y = 0f;
+            }
+
 
             if (Speed < 0.3f)
             {

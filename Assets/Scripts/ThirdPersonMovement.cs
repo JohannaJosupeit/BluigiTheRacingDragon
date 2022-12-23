@@ -82,7 +82,7 @@ public class ThirdPersonMovement : MonoBehaviour
         //Grounded Stats
         GroundDistance = 0.2f;
         DistanceToGround = 1f;
-        brake = 0.3f;
+        brake = 2f;
         Gravity = -9.81f;
         animator = GetComponent<Animator>();
        
@@ -118,6 +118,13 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
+            //and ctrl is pressed
+            if (Input.GetKey(KeyCode.LeftControl))
+            {
+                Speed = Mathf.Lerp(Speed, 0f, 1f * Time.deltaTime);
+                Velocity.y = 0f;
+            }
+
             if (vertical != 0)
             {
                 controller.Move(transform.up * Time.deltaTime * PitchRate * vertical);
@@ -155,13 +162,7 @@ public class ThirdPersonMovement : MonoBehaviour
                 
             }
 
-            //and ctrl is pressed
-            if (Input.GetKey(KeyCode.LeftControl) && Speed >= 0 + brake)
-            {
-                //and subtract the braking speed from the current speed
-                Speed -= brake;
-                Velocity.y = 0f;
-            }
+           
 
             if (Speed < 0.3f)
             {
@@ -196,12 +197,12 @@ public class ThirdPersonMovement : MonoBehaviour
             }
         }
 
+        
 
 
 
-
-            // if shift is not pressed (or not pressed anymore)
-            if (Input.GetKeyUp(KeyCode.LeftShift))
+        // if shift is not pressed (or not pressed anymore)
+        if (Input.GetKeyUp(KeyCode.LeftShift) && !isFlying)
             {
                 //set the speed to the walking speed
                 Speed = SpeedWalk;

@@ -118,16 +118,26 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
-           // 
+            float CurrentPitch1 = 0f;
+            // 
             if (vertical != 0)
             {
-                CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 5f * Time.deltaTime);
+                
+                CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 1.5f * Time.deltaTime);
+                CurrentPitch1 = CurrentPitch;
                 controller.Move(transform.up * Time.deltaTime * CurrentPitch * vertical);
+               
+                if (vertical < 0)
+                {
+                    
+                }
+                if (vertical > 0)
+                {
+                   
+                }
             }
-            else
-            {
-                CurrentPitch = 0f;
-            }
+          
+
             
             if (direction.z < 0f)
             {
@@ -141,6 +151,7 @@ public class ThirdPersonMovement : MonoBehaviour
             //if shift is pressed
             if (Input.GetKey(KeyCode.LeftShift))
             {
+                animator.SetBool("Flight", true);
                 // accelerate to the dragon's max. speed.
                 Speed = Mathf.Lerp(Speed, SpeedFlight, 1f * Time.deltaTime);
             }
@@ -148,6 +159,7 @@ public class ThirdPersonMovement : MonoBehaviour
             //if shift is not pressed anymore
             if (Input.GetKeyUp(KeyCode.LeftShift))
             {
+                animator.SetBool("Flight", false);
                 //reset the boolean and turn radius to gliding
                 isSpeedingUp = false;
                 { TurnRadius = TurnRadiusGlide; }
@@ -155,9 +167,10 @@ public class ThirdPersonMovement : MonoBehaviour
 
             //If ctrl is pressed while flying
             if (Input.GetKey(KeyCode.LeftControl))
-            {   
+            {
                 //smoothly transition from the dragon's current speed to 0.
-                Speed = Mathf.Lerp(Speed, 0f, 1f * Time.deltaTime);
+                float velocity = 0f;
+                Speed = Mathf.SmoothDamp(Speed, 0f, ref velocity, 3f * Time.deltaTime);
                 Velocity.y = 0f;
             }
 

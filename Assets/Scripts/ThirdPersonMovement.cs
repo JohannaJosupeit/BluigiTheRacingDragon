@@ -127,18 +127,22 @@ public class ThirdPersonMovement : MonoBehaviour
                 CurrentPitch1 = CurrentPitch;
                 controller.Move(transform.up * Time.deltaTime * CurrentPitch * vertical);
                
-                if (vertical < 0)
-                {
-                    
-                }
-                if (vertical > 0)
-                {
-                   
-                }
+                
             }
-          
 
-            
+            if (vertical < 0)
+            {
+                animator.SetBool("isDiving", true);
+            }
+            else
+            {
+                animator.SetBool("isDiving", false);
+            }
+            if (vertical > 0)
+            {
+
+            }
+
             if (direction.z < 0f)
             {
                 direction.z = 0f;

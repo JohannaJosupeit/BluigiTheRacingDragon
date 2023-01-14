@@ -13,6 +13,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public CharacterController controller;
     public Transform cam;
 
+    public Vector3 move, moveDirfw;
     public float Speed;
     public float SpeedFlight;
     public float SpeedWalk;
@@ -83,7 +84,6 @@ public class ThirdPersonMovement : MonoBehaviour
         //Grounded Stats
         GroundDistance = 0.2f;
         DistanceToGround = 1f;
-        brake = 2f;
         Gravity = -9.81f;
         animator = GetComponent<Animator>();
        
@@ -118,17 +118,9 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
-            float CurrentPitch1 = 0f;
+            
             // 
-            if (vertical != 0)
-            {
-                
-                CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 1.5f * Time.deltaTime);
-                CurrentPitch1 = CurrentPitch;
-                controller.Move(transform.up * Time.deltaTime * CurrentPitch * vertical);
-               
-                
-            }
+            
 
             if (vertical < 0)
             {
@@ -238,12 +230,21 @@ public class ThirdPersonMovement : MonoBehaviour
                 //rotate the character said degrees around the y axis,
                 transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-                //store new direction
-                Vector3 moveDir = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                if (vertical != 0 && isFlying)
+                {
+                    CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 3f * Time.deltaTime);
+                    Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical;
+                    move = Vector3.Lerp(move, moveDirfw, 1f * Time.deltaTime);
+                    controller.Move(movDirUp);
 
+                }
+
+                 //store new direction
+                 moveDirfw = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                
 
                 //and move the character in that direction multiplied by the speed and time (to make it frame-rate-independent).
-                controller.Move(moveDir.normalized * Speed * Time.deltaTime);
+                controller.Move(moveDirfw.normalized * Speed * Time.deltaTime);
 
                 animator.SetBool("isMoving", true);
             }

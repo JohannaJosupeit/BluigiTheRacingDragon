@@ -28,6 +28,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float SprintDeceleration;
     public float AccelerationVelocity;
     public float JumpHeight;
+    public float flytodivespeed;
     public float keepFlyingSpeed;
     public float currentVelocity_y;
 
@@ -75,7 +76,8 @@ public class ThirdPersonMovement : MonoBehaviour
         SpeedDiving = 2f;
         SpeedGliding = 20f;
         CurrentPitch = 0f;
-        PitchRate = 15f;
+        PitchRate = 30f;
+        flytodivespeed = 1f;
         SprintAcceleration = 1.5f;
         SprintDeceleration = 1.5f;
         keepFlyingSpeed = 50f;
@@ -118,10 +120,6 @@ public class ThirdPersonMovement : MonoBehaviour
         //if the player is flying
         if (isFlying)
         {
-            
-            // 
-            
-
             if (vertical < 0)
             {
                 animator.SetBool("isDiving", true);
@@ -180,6 +178,7 @@ public class ThirdPersonMovement : MonoBehaviour
                 animator.SetBool("Speedis0", false);
             }
 
+            
         }
 
         else
@@ -229,22 +228,45 @@ public class ThirdPersonMovement : MonoBehaviour
 
                 //rotate the character said degrees around the y axis,
                 transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
+                
                 if (vertical != 0 && isFlying)
                 {
-                    CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 3f * Time.deltaTime);
+                    /* CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 3f * Time.deltaTime);
                     Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical;
                     move = Vector3.Lerp(move, moveDirfw, 1f * Time.deltaTime);
                     controller.Move(movDirUp);
 
+
+                    Speed = Mathf.Lerp(Speed, 0f, flytodivespeed * Time.deltaTime);
+                     */
+                    CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 1f * Time.deltaTime);
+                    Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical * 1.5f;
+
+                    move = Vector3.Lerp(move, movDirUp, 1f * Time.deltaTime);
+                    if (vertical < 0 || Speed >= 0.1f)
+                    {
+                      Speed += 0.1f;
+                      CurrentPitch += 0.1f;
+                    }
+                    else
+                    {
+                        Speed -= 0.1f;
+                        CurrentPitch -= 0.1f;
+                }
+                    
                 }
 
-                 //store new direction
-                 moveDirfw = Quaternion.Euler(0f, angle, 0f) * Vector3.forward;
+                else
+                {
+                move = Vector3.Lerp(move, moveDirfw, 10f * Time.deltaTime);
+                }
+
+                //store new direction
+                moveDirfw = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * Speed * Time.deltaTime;
                 
 
                 //and move the character in that direction multiplied by the speed and time (to make it frame-rate-independent).
-                controller.Move(moveDirfw.normalized * Speed * Time.deltaTime);
+                controller.Move(move);
 
                 animator.SetBool("isMoving", true);
             }

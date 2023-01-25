@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
+
 
 public class ThirdPersonMovement : MonoBehaviour
 
@@ -33,7 +35,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float currentVelocity_y;
 
 
-    public float TurnRadius;
+    public float TurnRadius, TurnRadius2;
     public float TurnRadiusWalk;
     public float TurnRadiusSprint;
     public float TurnRadiusGlide;
@@ -56,6 +58,7 @@ public class ThirdPersonMovement : MonoBehaviour
 
     public Animator animator;
     public GameObject player;
+    public Transform playerT;
 
 
     // Start is called before the first frame update
@@ -63,6 +66,7 @@ public class ThirdPersonMovement : MonoBehaviour
     {
     //Turn Radius Stats
         TurnRadius = 0.2f;
+        TurnRadius2 = 150f;
         TurnRadiusWalk = 0.8f;
         TurnRadiusSprint = 1.2f;
         TurnRadiusGlide = 1f;
@@ -94,6 +98,10 @@ public class ThirdPersonMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("BluigiCharacter");
+        }
         // store input as variable; for example a value of -1 horizontally if "A" is pressed
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
@@ -214,36 +222,43 @@ public class ThirdPersonMovement : MonoBehaviour
                 Speed = SpeedWalk;
                 isSprinting = false;
             }
-            Mathf.SmoothDamp(SpeedWalk, SpeedSprint, ref AccelerationVelocity, SprintAcceleration);
+            
 
 
 
             if (direction.magnitude >= 0.1f || isFlying)
 
-            {   //calculate the character's new angle, convert the result to degrees instead of radians, store it,
-                float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+            {
+                  //transform.Rotate(Vector3.up * horizontal * Time.deltaTime * TurnRadius2);
 
-                //smooth turning
-                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, TurnRadius);
 
-                //rotate the character said degrees around the y axis,
-                transform.rotation = Quaternion.Euler(0f, angle, 0f);
-                
-                if (vertical != 0 && isFlying)
+            //calculate the character's new angle, convert the result to degrees instead of radians, store it,
+            float targetAngle =  Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + playerT.eulerAngles.y;
+
+            //smooth turning
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, TurnRadius);
+
+            //rotate the character said degrees around the y axis,
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+            if (vertical != 0 && isFlying)
                 {
-                    /* CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 3f * Time.deltaTime);
-                    Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical;
-                    move = Vector3.Lerp(move, moveDirfw, 1f * Time.deltaTime);
-                    controller.Move(movDirUp);
+                /* CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 3f * Time.deltaTime);
+                Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical;
+                move = Vector3.Lerp(move, moveDirfw, 1f * Time.deltaTime);
+                controller.Move(movDirUp);
 
 
-                    Speed = Mathf.Lerp(Speed, 0f, flytodivespeed * Time.deltaTime);
-                     */
-                    CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 1f * Time.deltaTime);
+                Speed = Mathf.Lerp(Speed, 0f, flytodivespeed * Time.deltaTime);
+                 */
+
+                
+
+                CurrentPitch = Mathf.Lerp(CurrentPitch, PitchRate, 1f * Time.deltaTime);
                     Vector3 movDirUp = transform.up * Time.deltaTime * CurrentPitch * vertical * 1.5f;
 
                     move = Vector3.Lerp(move, movDirUp, 1f * Time.deltaTime);
-                    if (vertical < 0 || Speed >= 0.1f)
+                    /*if (vertical < 0 || Speed >= 0.1f)
                     {
                       Speed += 0.1f;
                       CurrentPitch += 0.1f;
@@ -252,7 +267,7 @@ public class ThirdPersonMovement : MonoBehaviour
                     {
                         Speed -= 0.1f;
                         CurrentPitch -= 0.1f;
-                }
+                    }*/
                     
                 }
 
@@ -261,10 +276,12 @@ public class ThirdPersonMovement : MonoBehaviour
                 move = Vector3.Lerp(move, moveDirfw, 10f * Time.deltaTime);
                 }
 
+               
+
                 //store new direction
                 moveDirfw = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * Speed * Time.deltaTime;
                 
-
+                
                 //and move the character in that direction multiplied by the speed and time (to make it frame-rate-independent).
                 controller.Move(move);
 
